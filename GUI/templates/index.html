@@ -1,0 +1,82 @@
+
+<!DOCTYPE HTML>
+<!--
+	Highlights by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Hoax Detection</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="{{url_for('static', filename='css/main.css')}}" />
+    <link rel="icon" type="image/x-icon" href="{{url_for('static', filename='favicon.ico')}}">
+  </head>
+	<body class="is-preload">
+
+		<!-- One -->
+			<section id="one" class="main special">
+				<div class="container mainContainer" style="border: 2px solid black; padding-top: 0; padding-bottom: 0; border-radius: 5%;">
+					<!--span class="image fit primary"><img src="{{url_for('static', filename='images/pic01.jpg')}}" /></span-->
+					<div class="content" style="height: 100vh;">
+						<div class="custom-div">
+							<p>Hoax Detection for News Using LSTM</p>
+						</div>
+						<textarea id="textInput" name="textInput" rows="5" placeholder="Enter a news text..."></textarea>
+
+						<table>
+							<tr>
+								<td class="custom-td-predict"><button class="button primary" id="predictButton">PREDICT</button></td>
+								<td class="custom-td-predict-text">Predicted Sentiment = <span id="predictionResult">...</span></td>
+							</tr>
+						</table>
+					</div>
+				</div>
+			</section>
+
+			<!-- Scripts -->
+			<script src="{{url_for('static', filename='js/jquery.min.js')}}"></script>
+			<script src="{{url_for('static', filename='js/jquery.scrollex.min.js')}}"></script>
+			<script src="{{url_for('static', filename='js/jquery.scrolly.min.js')}}"></script>
+			<script src="{{url_for('static', filename='js/browser.min.js')}}"></script>
+			<script src="{{url_for('static', filename='js/breakpoints.min.js')}}"></script>
+			<script src="{{url_for('static', filename='js/util.js')}}"></script>
+			<script src="{{url_for('static', filename='js/main.js')}}"></script>
+
+			<!-- Send data to Flask -->
+			<script>
+				document.addEventListener("DOMContentLoaded", function () {
+					// Get references to the form elements
+					const predictButton = document.getElementById("predictButton");
+					const predictionResult = document.getElementById("predictionResult");
+				
+					// Attach a click event listener to the PREDICT button
+					predictButton.addEventListener("click", function () {
+            // Placeholder while waiting for result
+            predictionResult.textContent = "Predicting...";
+            
+            // Get the text from the textarea
+            const textInput = document.getElementById("textInput").value;
+				
+						// Send a request to your Flask server with the selected values
+						fetch('/predict', {
+							method: 'POST',
+							headers: {
+								'Content-Type': 'application/json',
+							},
+							body: JSON.stringify({textInput}),
+						})
+						.then(response => response.json())
+						.then(data => {
+							// Display the prediction result in the HTML
+							predictionResult.textContent = data.prediction;
+						})
+						.catch(error => {
+							console.error('Error:', error);
+						});
+					});
+				});
+				</script>
+	</body>
+</html>

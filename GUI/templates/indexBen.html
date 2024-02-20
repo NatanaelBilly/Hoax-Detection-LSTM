@@ -1,0 +1,174 @@
+<!DOCTYPE HTML>
+<!--
+	Highlights by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>SABERT</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="{{url_for('static', filename='css/main.css')}}" />
+    <link rel="icon" type="image/x-icon" href="{{url_for('static', filename='favicon.ico')}}">
+  </head>
+	<body class="is-preload">
+
+		<!-- Header -->
+			<section id="header">
+				<header class="major">
+					<h1 style="font-size: 150px; font-weight: bold;">SABERT</h1>
+					<p style="font-size: 30px; font-weight: bold;">Sentiment Analysis With BERT</p>
+				</header>
+				<div class="container" style="background-color: #00000000;">
+					<ul class="actions special">
+						<li><a href="#one" class="button primary scrolly" style="border-radius: 20px; margin-bottom: 100px;">START</a></li>
+					</ul>
+				</div>
+			</section>
+
+		<!-- One -->
+			<section id="one" class="main special">
+				<div class="container mainContainer" style="border: 2px solid black; padding-top: 0; padding-bottom: 0; border-radius: 5%;">
+					<span class="image fit primary"><img src="{{url_for('static', filename='images/pic01.jpg')}}" /></span>
+					<div class="content" style="height: 100vh;">
+						<textarea id="textInput" name="textInput" rows="5" placeholder="Enter a movie review..."></textarea>
+
+						<table>
+							<tr>
+								<td style="font-weight: bolder;">Max Sequence Length:</td>
+								<td style="font-weight: bolder;">Batch Size:</td>
+							</tr>
+							<tr>
+								<td>
+									<select id="maxSeqLen" class="dropdown">
+										<option value="100">100</option>
+										<option value="200">200</option>
+										<option value="250">250</option>
+										<option value="300">300</option>
+										<option value="350">350</option>
+									</select>
+								</td>
+								<td>
+									<select id="batchSize" class="dropdown">
+										<option value="16">16</option>
+										<option value="32">32</option>
+										<option value="64">64</option>
+									</select>
+								</td>
+							</tr>
+							<tr>
+								<td style="font-weight: bolder;">Learning Rate:</td>
+								<td style="font-weight: bolder;">Number of Epochs:</td>
+							</tr>
+							<tr>
+								<td>
+									<select id="learningRate" class="dropdown">
+										<option value="1e-05">1e-05</option>
+										<option value="2e-05">2e-05</option>
+										<option value="3e-05">3e-05</option>
+										<option value="4e-05">4e-05</option>
+										<option value="5e-05">5e-05</option>
+									</select>
+								</td>
+								<td>
+									<select id="numEpochs" class="dropdown">
+										<option value="1">1</option>
+										<option value="2">2</option>
+										<option value="3">3</option>
+										<option value="4">4</option>
+										<option value="5">5</option>
+										<option value="10">10</option>
+									</select>
+								</td>
+							</tr>
+						</table>
+
+						<table>
+							<tr>
+								<td colspan="4" style="font-weight: bold;">Recommended Combination (91.77% Accuracy)</td>
+							</tr>
+							<tr>
+								<td style="font-weight: bolder;">Max Seq Len</td>
+								<td style="font-weight: bolder;">Batch Size</td>
+								<td style="font-weight: bolder;">Learning Rate</td>
+								<td style="font-weight: bolder;">Epochs</td>
+							</tr>
+							<tr>
+								<td style="font-weight: bolder;">350</td>
+								<td style="font-weight: bolder;">16</td>
+								<td style="font-weight: bolder;">3e-05</td>
+								<td style="font-weight: bolder;">10</td>
+							</tr>
+						</table>
+
+						<table>
+							<tr>
+								<td class="custom-td-predict"><button class="button primary" id="predictButton">PREDICT</button></td>
+								<td class="custom-td-predict-text">Predicted Sentiment = <span id="predictionResult">...</span></td>
+							</tr>
+						</table>
+					</div>
+				</div>
+			</section>
+
+			<!-- Scripts -->
+			<script src="{{url_for('static', filename='js/jquery.min.js')}}"></script>
+			<script src="{{url_for('static', filename='js/jquery.scrollex.min.js')}}"></script>
+			<script src="{{url_for('static', filename='js/jquery.scrolly.min.js')}}"></script>
+			<script src="{{url_for('static', filename='js/browser.min.js')}}"></script>
+			<script src="{{url_for('static', filename='js/breakpoints.min.js')}}"></script>
+			<script src="{{url_for('static', filename='js/util.js')}}"></script>
+			<script src="{{url_for('static', filename='js/main.js')}}"></script>
+
+			<!-- Send data to Flask -->
+			<script>
+				document.addEventListener("DOMContentLoaded", function () {
+					// Get references to the form elements
+					const maxSeqLenSelect = document.getElementById("maxSeqLen");
+					const batchSizeSelect = document.getElementById("batchSize");
+					const learningRateSelect = document.getElementById("learningRate");
+					const numEpochsSelect = document.getElementById("numEpochs");
+					const predictButton = document.getElementById("predictButton");
+					const predictionResult = document.getElementById("predictionResult");
+				
+					// Attach a click event listener to the PREDICT button
+					predictButton.addEventListener("click", function () {
+            // Placeholder while waiting for result
+            predictionResult.textContent = "Predicting...";
+            
+            // Get the text from the textarea
+            const textInput = document.getElementById("textInput").value;
+						// Get the selected values from the dropdowns
+						const maxSeqLen = maxSeqLenSelect.value;
+						const batchSize = batchSizeSelect.value;
+						const learningRate = learningRateSelect.value;
+						const numEpochs = numEpochsSelect.value;
+				
+						// Send a request to your Flask server with the selected values
+						fetch('/predict', {
+							method: 'POST',
+							headers: {
+								'Content-Type': 'application/json',
+							},
+							body: JSON.stringify({
+                textInput,
+								maxSeqLen,
+								batchSize,
+								learningRate,
+								numEpochs,
+							}),
+						})
+						.then(response => response.json())
+						.then(data => {
+							// Display the prediction result in the HTML
+							predictionResult.textContent = data.prediction;
+						})
+						.catch(error => {
+							console.error('Error:', error);
+						});
+					});
+				});
+				</script>
+	</body>
+</html>
